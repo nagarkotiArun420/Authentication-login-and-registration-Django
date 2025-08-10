@@ -94,15 +94,18 @@ def signin(request):
         username = request.POST["username"]
         password = request.POST["password"]
 
-        user =  authenticate(username= username, password= password)
+        user =  authenticate(username=username, password=password)
         
         if user is not None:
+            if not user.is_active:
+                messages.error(request,"Please activate your account, check you email")
+                return redirect('signin')
             login(request,user)
             firstname = user.first_name
-            return render(request, "authentication/index.html", {'firstname':firstname}) 
+            return redirect('home')
         else:
             messages.error(request, "Invalid credentials")
-            return redirect('home')
+            return redirect('signin')
             
     return render(request, "authentication/signin.html")
 
@@ -126,4 +129,5 @@ def activate(request, uidb64, token):
         return redirect('home')
     else:
         return render(request, "activation_failed.html")
+    
     
